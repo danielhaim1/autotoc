@@ -1,7 +1,5 @@
 # AutoTOC API
 
-`AutoTOC` is an NPM package for automatically generating and managing table of contents with scroll highlighting for web content
-
 [![npm version](https://img.shields.io/npm/v/@danielhaim/autotoc)](https://www.npmjs.com/package/@danielhaim/autotoc)
 [![Downloads](https://img.shields.io/npm/dt/@danielhaim/autotoc.svg)](https://www.npmjs.com/package/@danielhaim/autotoc)
 ![GitHub](https://img.shields.io/github/license/danielhaim1/autotoc)
@@ -9,21 +7,26 @@
 Overview
 --------
 
-# API Documentation  
+`AutoTOC` is an NPM package for automatically generating and managing table of contents with scroll highlighting for web content
 
-## Getting Started  
+[CodePen Demo](https://codepen.io/danielhaim/pen/jOJLbrV)
 
-To get started, you can install `AutoTOC` via NPM:  
+
+API Documentation
+--------------------
+
+### Getting Started ###
+
+To initiate, install `AutoTOC` using NPM:
 
 ```shell 
 npm i @danielhaim/autotoc
 ```
 
-## Usage
+### Module Example ###
 
-
-```javascript
-// See Demo: https://codepen.io/danielhaim/pen/jOJLbrV
+```js
+import AutoToc from "@danielhaim/autotoc";
 
 document.addEventListener("DOMContentLoaded", function () {
     const tocOptions = {
@@ -48,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
 
     try {
-        const tocGenerator = new AutoToc(
+        const tocGenerator = new AutoToc.Generate(
             ...Object.values(tocOptions)
         );
 

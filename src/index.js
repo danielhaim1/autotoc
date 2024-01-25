@@ -2,7 +2,7 @@ import modulator from '@danielhaim/modulator';
 import { slugify } from '@danielhaim/slugify/src/index.js';
 
 /**
- * Constructor for AutoToc class.
+ * Constructor for `AutoToc.Generate` class.
  *
  * @param {string} contentSelector - CSS selector for the content element.
  * @param {string} navigationContainer - CSS selector for the navigation container.
@@ -12,7 +12,7 @@ import { slugify } from '@danielhaim/slugify/src/index.js';
  * @param {number} headingDepthLimit - Limit for heading depth to include in TOC.
  */
 
-export class AutoToc {
+export class Generate {
     constructor(
         contentSelector,
         navigationContainer,

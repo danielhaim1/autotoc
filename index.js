@@ -1,13 +1,20 @@
-import { AutoToc } from './src/index.js';
+import { Generate } from './src/index.js';
 
-const exports = { AutoToc };
+const AutoToc = { Generate };
 
 // Export for Node.js environment
 if (typeof module === 'object' && module.exports) {
-    module.exports = exports;
+    module.exports = AutoToc;
+}
+
+// Export for AMD environment
+if (typeof define === 'function' && define.amd) {
+    define('AutoToc', [], function() {
+        return AutoToc;
+    });
 }
 
 // Export for web environment
 if (typeof window === 'object') {
-    Object.assign(window, exports);
+    window.AutoToc = AutoToc;
 }
