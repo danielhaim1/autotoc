@@ -1,6 +1,6 @@
 {
   "name": "@danielhaim/autotoc",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "NPM package for generating and managing table of contents with scroll highlighting for web content",
   "keywords": [
     "table of contents",
