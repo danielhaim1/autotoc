@@ -13,7 +13,7 @@ import { slugify } from '@danielhaim/slugify/src/index.js';
  */
 
 export class Generate {
-    constructor(
+    constructor (
         contentSelector,
         navigationContainer,
         tocTitle,
@@ -33,10 +33,6 @@ export class Generate {
         this.pendingExternalLinks = [];
     }
 
-    /**
-     * Validate the parameters passed to the constructor.
-     * Throws an error if any parameter is invalid.
-     */
     validateParameters() {
         if (
             typeof this.contentSelector !== "string" ||
@@ -73,43 +69,27 @@ export class Generate {
             );
     }
 
-    /**
-     * Detach scroll event listeners.
-     */
     detachEventListeners() {
         window.removeEventListener("scroll", this.boundScrollListener);
     }
 
-    /**
-     * Generate a unique ID for a heading element.
-     *
-     * @param {HTMLElement} node - Heading element.
-     * @returns {string} - Unique ID.
-     */
     generateUniqueId(node) {
         const slugifier = new slugify();
         return slugifier.generate(node.textContent || "");
     }
 
-    /**
-     * Populate the TOC map with headings from the content.
-     */
     populateTocMap() {
-        const headingSelectors = Array.from(
-            { length: this.headingDepthLimit },
-            (_, i) => `${this.contentSelector} h${i + 1}`
-        );
-        const headings = document.querySelectorAll(headingSelectors);
+        const headings = document.querySelectorAll(`${this.createHeadingSelector()}`);
 
-        const newTocMap = new Map(); // Create a new map to store the updated TOC entries
+        const newTocMap = new Map();
 
         headings.forEach((heading) => {
-            const headingLevel = parseInt(heading.tagName.charAt(1));
-            const headingId = heading.id;
+            const headingLevel = parseInt(heading.tagName.substring(1), 10); // Ensure correct parsing
+            const headingId = heading.id || this.generateUniqueId(heading); // Generate ID if missing
             const headingText = heading.textContent.trim();
 
+            // Only add to the new map if it doesn't exist in the old map
             if (!this.tocMap.has(headingId)) {
-                // Only add to the new map if it doesn't exist in the old map
                 newTocMap.set(headingId, { level: headingLevel, text: headingText });
             }
         });
@@ -121,14 +101,9 @@ export class Generate {
         this.renderTocHtml();
     }
 
-    /**
-     * Create a TOC list from the provided TOC map.
-     *
-     * @param {Map} tocMap - TOC map to create the list from.
-     * @returns {HTMLElement} - TOC list element.
-     */
     createTocList(tocMap) {
         const tocList = document.createElement("ol");
+        if (tocMap.size === 0) return tocList;
 
         tocMap.forEach((info, id) => {
             const { level, text } = info;
@@ -149,16 +124,25 @@ export class Generate {
         return tocList;
     }
 
-    /**
-     * Render the Table of Contents HTML.
-     */
+    findFirstHeadingLevel() {
+        for (let i = 1; i <= this.headingDepthLimit; i++) {
+            // Use document.querySelector to search for headings within the content selector
+            if (document.querySelector(`${this.contentSelector} h${i}`)) {
+                return i;
+            }
+        }
+        return null; // Return null if no headings are found within the limit
+    }
+
     renderTocHtml() {
+        let firstHeadingLevel = this.findFirstHeadingLevel();
+        let currentLevel = firstHeadingLevel || 1;
+
         const tocList = document.createElement("ol");
         tocList.className = "toc-list";
         tocList.setAttribute("role", "list");
 
         let currentLists = [tocList];
-        let currentLevel = 1;
 
         // Create the top and bottom TOC lists
         const topTocList = this.createTocList(this.tocTopMap);
@@ -177,6 +161,14 @@ export class Generate {
             listItem.appendChild(anchor);
             currentLists[currentLists.length - 1].appendChild(listItem);
         });
+
+        const safeAppendChild = (parent, child) => {
+            if (parent != null) {
+                parent.appendChild(child);
+            } else {
+                console.error("Attempted to append to a non-existent element.");
+            }
+        };
 
         this.tocMap.forEach((info, id) => {
             const { level, text } = info;
@@ -214,11 +206,12 @@ export class Generate {
         });
 
         const navContainer = document.querySelector(this.navigationContainer);
+
         if (navContainer) {
             navContainer.innerHTML = `<header><h2>${this.tocIcon}<span>${this.tocTitle}</span></h2></header>`;
-            navContainer.appendChild(topTocList);
-            navContainer.appendChild(tocList);
-            navContainer.appendChild(bottomTocList);
+            safeAppendChild(navContainer, topTocList); // Using the safe append function
+            safeAppendChild(navContainer, tocList); // Using the safe append function
+            safeAppendChild(navContainer, bottomTocList); // Using the safe append function
             navContainer.setAttribute("role", "doc-toc");
 
             navContainer.addEventListener("click", (e) => {
@@ -228,44 +221,35 @@ export class Generate {
                     this.scrollToElement(targetId);
                 }
             });
+        } else {
+            console.error("Navigation container not found");
         }
     }
 
-    /**
-     * Attach anchors to headings in the content.
-     */
     attachAnchorsToHeadings() {
-        const selector = this.createHeadingSelector();
-        const headings = document.querySelectorAll(
-            `${this.contentSelector} ${selector}`
-        );
+        const headings = document.querySelectorAll(`${this.createHeadingSelector()}`);
         headings.forEach((heading) => {
-            const uniqueId = this.generateUniqueId(heading);
-            heading.id = uniqueId;
-            const anchor = document.createElement("a");
-            anchor.href = `#${uniqueId}`;
-            anchor.textContent = "#";
-            heading.insertBefore(anchor, heading.firstChild);
+            // Before proceeding, ensure the heading is not a child of the navigationContainer.
+            if (!this.navigationContainer.includes(heading.parentNode)) {
+                const uniqueId = this.generateUniqueId(heading);
+                heading.id = uniqueId;
+
+                const anchor = document.createElement("a");
+                anchor.href = `#${uniqueId}`;
+                anchor.textContent = "#";
+                heading.insertBefore(anchor, heading.firstChild);
+            }
         });
     }
 
-    /**
-     * Create a CSS selector for heading elements.
-     *
-     * @returns {string} - Heading selector.
-     */
     createHeadingSelector() {
+        // Construct an array of heading selectors prefixed with the contentSelector.
         return Array.from(
             { length: this.headingDepthLimit },
-            (_, i) => `h${i + 1}`
+            (_, i) => `${this.contentSelector} h${i + 1}`
         ).join(", ");
     }
 
-    /**
-     * Scroll to a specific element with a given target ID.
-     *
-     * @param {string} targetId - ID of the target element to scroll to.
-     */
     scrollToElement(targetId) {
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
@@ -281,9 +265,6 @@ export class Generate {
         }
     }
 
-    /**
-     * Highlight the active section in the Table of Contents.
-     */
     highlightActiveSection() {
         const offset = this.highlightOffset;
         const headingSelectors = this.createHeadingSelector();
@@ -310,13 +291,6 @@ export class Generate {
         });
     }
 
-    /**
-     * Add content to the Table of Contents.
-     *
-     * @param {number} level - Heading level.
-     * @param {string} id - ID of the heading.
-     * @param {string} text - Text content of the heading.
-     */
     addContentToToc(level, id, text) {
         if (!this.tocMap.has(id)) {
             this.tocMap.set(id, { level, text });
@@ -324,13 +298,6 @@ export class Generate {
         }
     }
 
-    /**
-     * Add external links to the Table of Contents.
-     *
-     * @param {Array} links - Array of link objects with 'id' and 'text' properties.
-     * @param {string} position - Position to add links ('top' or 'bottom').
-     * @param {string} specialLevel - Special level for added links.
-     */
     addExternalLinksToToc(links, position = "bottom", specialLevel = "level-0") {
         if (!Array.isArray(links)) {
             throw new Error("Invalid links: Must be an array of link objects.");
@@ -368,20 +335,14 @@ export class Generate {
         this.renderTocHtml();
     }
 
-    /**
-     * Initialize scroll highlighting for active sections.
-     */
     initializeScrollHighlighting() {
         this.boundHighlightActiveSection = this.highlightActiveSection.bind(this);
-        const debouncedHighlight = modulate(this.boundHighlightActiveSection, 200);
+        // const debouncedHighlight = modulate(this.boundHighlightActiveSection, 200);
+        const debouncedHighlight = this.boundHighlightActiveSection;
 
         window.addEventListener("scroll", debouncedHighlight);
     }
 
-    /**
-     * Initialize the Table of Contents generator.
-     * Validates parameters, attaches anchors, populates TOC map, renders TOC, and initializes scroll highlighting.
-     */
     initialize() {
         this.validateParameters();
         this.attachAnchorsToHeadings();
