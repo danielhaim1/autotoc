@@ -366,18 +366,18 @@ export class Generate {
         window.addEventListener("scroll", debouncedHighlight);
     }
 
+    // ...
     removeEmptyLists() {
-    const container = document.querySelector(this.navigationContainer); 
-    if (container) {
-        const lists = container.querySelectorAll('ol');
-        lists.forEach(list => {
-            if (list.children.length === 0) {
-                list.parentNode.removeChild(list);
-            }
-        });
+        const container = document.querySelector(this.navigationContainer); 
+        if (container) {
+            const lists = container.querySelectorAll('ol');
+            lists.forEach(list => {
+                if (list.children.length === 0) {
+                    list.parentNode.removeChild(list);
+                }
+            });
+        }
     }
-}
-
 
     // Initialize the Table of Contents generator.
     // Validates parameters, attaches anchors, populates TOC map, renders TOC, and initializes scroll highlighting.
