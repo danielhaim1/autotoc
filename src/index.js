@@ -1,16 +1,13 @@
 import modulator from '@danielhaim/modulator';
 import { slugify } from '@danielhaim/slugify/src/index.js';
 
-/**
- * Constructor for `AutoToc.Generate` class.
- *
- * @param {string} contentSelector - CSS selector for the content element.
- * @param {string} navigationContainer - CSS selector for the navigation container.
- * @param {string} tocTitle - Title for the Table of Contents.
- * @param {string} tocIcon - Icon HTML for the Table of Contents.
- * @param {number} highlightOffset - Offset for highlighting active sections.
- * @param {number} headingDepthLimit - Limit for heading depth to include in TOC.
- */
+// Constructor for `AutoToc.Generate` class.
+// @param {string} contentSelector - CSS selector for the content element.
+// @param {string} navigationContainer - CSS selector for the navigation container.
+// @param {string} tocTitle - Title for the Table of Contents.
+// @param {string} tocIcon - Icon HTML for the Table of Contents.
+// @param {number} highlightOffset - Offset for highlighting active sections.
+// @param {number} headingDepthLimit - Limit for heading depth to include in TOC.
 
 export class Generate {
     constructor (
@@ -28,11 +25,13 @@ export class Generate {
         this.highlightOffset = highlightOffset;
         this.headingDepthLimit = headingDepthLimit;
         this.tocMap = new Map();
-        this.tocTopMap = new Map(); // Map for top links
-        this.tocBottomMap = new Map(); // Map for bottom links
+        this.tocTopMap = new Map();
+        this.tocBottomMap = new Map();
         this.pendingExternalLinks = [];
     }
 
+    // Validate the parameters passed to the constructor.
+    // Throws an error if any parameter is invalid.
     validateParameters() {
         if (
             typeof this.contentSelector !== "string" ||
@@ -69,15 +68,20 @@ export class Generate {
             );
     }
 
+    // Detach scroll event listeners.
     detachEventListeners() {
         window.removeEventListener("scroll", this.boundScrollListener);
     }
 
+    // Generate a unique ID for a heading element.
+    // @param {HTMLElement} node - Heading element.
+    // @returns {string} - Unique ID.
     generateUniqueId(node) {
         const slugifier = new slugify();
         return slugifier.generate(node.textContent || "");
     }
 
+    // Populate the TOC map with headings from the content.
     populateTocMap() {
         const headings = document.querySelectorAll(`${this.createHeadingSelector()}`);
 
@@ -101,6 +105,9 @@ export class Generate {
         this.renderTocHtml();
     }
 
+    // Create a TOC list from the provided TOC map.
+    // @param {Map} tocMap - TOC map to create the list from.
+    // @returns {HTMLElement} - TOC list element.
     createTocList(tocMap) {
         const tocList = document.createElement("ol");
         if (tocMap.size === 0) return tocList;
@@ -134,6 +141,7 @@ export class Generate {
         return null; // Return null if no headings are found within the limit
     }
 
+    // Render the Table of Contents HTML.
     renderTocHtml() {
         let firstHeadingLevel = this.findFirstHeadingLevel();
         let currentLevel = firstHeadingLevel || 1;
@@ -226,6 +234,7 @@ export class Generate {
         }
     }
 
+    // Attach anchors to headings in the content.
     attachAnchorsToHeadings() {
         const headings = document.querySelectorAll(`${this.createHeadingSelector()}`);
         headings.forEach((heading) => {
@@ -242,6 +251,8 @@ export class Generate {
         });
     }
 
+    // Create a CSS selector for heading elements.
+    // @returns {string} - Heading selector.
     createHeadingSelector() {
         // Construct an array of heading selectors prefixed with the contentSelector.
         return Array.from(
@@ -250,6 +261,8 @@ export class Generate {
         ).join(", ");
     }
 
+    // Scroll to a specific element with a given target ID.
+    // @param {string} targetId - ID of the target element to scroll to.
     scrollToElement(targetId) {
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
@@ -265,6 +278,7 @@ export class Generate {
         }
     }
 
+    // Highlight the active section in the Table of Contents.
     highlightActiveSection() {
         const offset = this.highlightOffset;
         const headingSelectors = this.createHeadingSelector();
@@ -291,6 +305,10 @@ export class Generate {
         });
     }
 
+    // Add content to the Table of Contents.
+    // @param {number} level - Heading level.
+    // @param {string} id - ID of the heading.
+    // @param {string} text - Text content of the heading.
     addContentToToc(level, id, text) {
         if (!this.tocMap.has(id)) {
             this.tocMap.set(id, { level, text });
@@ -298,6 +316,10 @@ export class Generate {
         }
     }
 
+    // Add external links to the Table of Contents.
+    // @param {Array} links - Array of link objects with 'id' and 'text' properties.
+    // @param {string} position - Position to add links ('top' or 'bottom').
+    // @param {string} specialLevel - Special level for added links.
     addExternalLinksToToc(links, position = "bottom", specialLevel = "level-0") {
         if (!Array.isArray(links)) {
             throw new Error("Invalid links: Must be an array of link objects.");
@@ -335,6 +357,7 @@ export class Generate {
         this.renderTocHtml();
     }
 
+    // Initialize scroll highlighting for active sections.
     initializeScrollHighlighting() {
         this.boundHighlightActiveSection = this.highlightActiveSection.bind(this);
         // const debouncedHighlight = modulate(this.boundHighlightActiveSection, 200);
@@ -343,6 +366,8 @@ export class Generate {
         window.addEventListener("scroll", debouncedHighlight);
     }
 
+    // Initialize the Table of Contents generator.
+    // Validates parameters, attaches anchors, populates TOC map, renders TOC, and initializes scroll highlighting.
     initialize() {
         this.validateParameters();
         this.attachAnchorsToHeadings();
