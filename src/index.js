@@ -17,8 +17,6 @@ export class Generate {
         tocIcon,
         highlightOffset,
         headingDepthLimit,
-        minElements = 3, // Minimum number of elements for ToC
-        maxElements = Infinity, // Maximum number of elements for ToC
         ignoreSelector = '' // New parameter for ignore selector
     ) {
         this.slugCount = new Map();
@@ -28,15 +26,12 @@ export class Generate {
         this.tocIcon = tocIcon;
         this.highlightOffset = highlightOffset;
         this.headingDepthLimit = headingDepthLimit;
-        this.minElements = minElements;
-        this.maxElements = maxElements;
         this.ignoreSelector = ignoreSelector; // Store the ignore selector
         this.tocMap = new Map();
         this.tocTopMap = new Map();
         this.tocBottomMap = new Map();
         this.pendingExternalLinks = [];
     }
-
 
     // Validate the parameters passed to the constructor.
     // Throws an error if any parameter is invalid.
@@ -68,6 +63,7 @@ export class Generate {
 
         // Validate tocIcon
         if (this.tocIcon !== null && typeof this.tocIcon !== "string") {
+
             throw new Error("Invalid tocIcon: Must be a string or null.");
         }
 
@@ -80,6 +76,9 @@ export class Generate {
         if (typeof this.headingDepthLimit !== "number" || this.headingDepthLimit < 1 || this.headingDepthLimit > 6 || !Number.isInteger(this.headingDepthLimit)) {
             throw new Error("Invalid headingDepthLimit: Must be an integer between 1 and 6.");
         }
+
+
+
     }
 
 
@@ -104,7 +103,6 @@ export class Generate {
         let headings = document.querySelectorAll(this.createHeadingSelector());
         if (this.ignoreSelector) {
             headings = Array.from(headings).filter(heading => !heading.closest(this.ignoreSelector));
-            // console.log("heading ignore:" + headings);
         }
         const newTocMap = new Map();
 
@@ -112,7 +110,6 @@ export class Generate {
             if (!this.ignoreSelector || !heading.closest(this.ignoreSelector)) {
                 const headingLevel = parseInt(heading.tagName.substring(1), 10); // Ensure correct parsing
                 const headingId = heading.id || this.generateUniqueId(heading); // Generate ID if missing
-                // console.log(headingId);
                 const headingText = heading.textContent.trim();
 
                 // Only add to the new map if it doesn't exist in the old map
@@ -159,8 +156,6 @@ export class Generate {
         for (let i = 1; i <= this.headingDepthLimit; i++) {
             // Use document.querySelector to search for headings within the content selector
             if (document.querySelector(`${this.contentSelector} > h${i}`)) {
-                console.log(i);
-
                 return i;
             }
         }
@@ -169,11 +164,6 @@ export class Generate {
 
     // Render the Table of Contents HTML.
     renderTocHtml() {
-        if (this.tocMap.size < this.minElements) {
-            console.log("Not enough headings to generate TOC");
-            return;
-        }
-
         let firstHeadingLevel = this.findFirstHeadingLevel();
         let currentLevel = firstHeadingLevel || 1;
 
@@ -276,7 +266,7 @@ export class Generate {
                 const text = heading.textContent.trim();
                 const anchor = document.createElement("a");
                 anchor.href = `#${uniqueId}`;
-                anchor.setAttribute("aria-label", `Anchor link to ${text}`);
+                anchor.setAttribute("aria-label", `Anchor link to "${text}"`);
                 anchor.className = "heading-link";
                 anchor.setAttribute("aria-hidden", "true");
                 anchor.setAttribute("tabindex", "-1");
@@ -338,8 +328,8 @@ export class Generate {
         if (targetElement) {
             const viewportOffset = targetElement.getBoundingClientRect().top;
             const scrollTargetPosition = viewportOffset + window.pageYOffset - this.highlightOffset;
-            console.log(`Link clicked: ${linkType}`);
-            console.log(`Scroll target position: ${scrollTargetPosition}px`);
+            // console.log(`Link clicked: ${linkType}`);
+            // console.log(`Scroll target position: ${scrollTargetPosition}px`);
 
             this.smoothScrollTo(scrollTargetPosition);
         }
@@ -378,42 +368,50 @@ export class Generate {
         }
     }
 
-highlightActiveSection() {
-    const offset = this.highlightOffset;
-    const allHeadingsWithId = document.querySelectorAll(`${this.contentSelector} h1[id], ${this.contentSelector} h2[id], ${this.contentSelector} h3[id], ${this.contentSelector} h4[id], ${this.contentSelector} h5[id], ${this.contentSelector} h6[id]`);
-    const headings = Array.from(allHeadingsWithId).filter(heading => !!document.querySelector(`a[href="#${heading.id}"]`));
-    const lastHeading = headings[headings.length - 1];
-    let pastLastHeading = lastHeading ? window.pageYOffset >= lastHeading.offsetTop + lastHeading.offsetHeight - offset : false;
+    // Highlight the active section in the Table of Contents.
+    highlightActiveSection() {
+        const offset = this.highlightOffset;
+        // Select all headings within the content area that have an ID
+        const allHeadingsWithId = document.querySelectorAll(`${this.contentSelector} h1[id], ${this.contentSelector} h2[id], ${this.contentSelector} h3[id], ${this.contentSelector} h4[id], ${this.contentSelector} h5[id], ${this.contentSelector} h6[id]`);
+        // Filter out headings that do not have a corresponding anchor link within the content
+        const headings = Array.from(allHeadingsWithId).filter(heading => !!document.querySelector(`a[href="#${heading.id}"]`));
 
-    headings.forEach((heading, index) => {
-        const anchorId = heading.getAttribute("id");
-        const anchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${anchorId}"]`);
-        const nextHeading = headings[index + 1];
-        const startHighlight = window.pageYOffset >= heading.offsetTop - offset;
-        let stopHighlight = nextHeading ? window.pageYOffset >= nextHeading.offsetTop - offset : pastLastHeading;
+        const lastHeading = headings[headings.length - 1];
 
-        if (!nextHeading && pastLastHeading) {
-            stopHighlight = false;
-        }
+        let pastLastHeading = lastHeading ? window.pageYOffset >= lastHeading.offsetTop + lastHeading.offsetHeight - offset : false;
 
-        if (anchorElement) {
-            if (startHighlight && !stopHighlight) {
-                anchorElement.classList.add("active");
-            } else {
-                anchorElement.classList.remove("active");
+        headings.forEach((heading, index) => {
+            const anchorId = heading.getAttribute("id");
+            const anchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${anchorId}"]`);
+            const nextHeading = headings[index + 1];
+            const startHighlight = window.pageYOffset >= heading.offsetTop - offset;
+
+            let stopHighlight = nextHeading
+                ? window.pageYOffset >= nextHeading.offsetTop - offset
+                : pastLastHeading;
+
+            if (!nextHeading && pastLastHeading) {
+                stopHighlight = false; // Ensure the last heading remains highlighted.
+            }
+
+            if (anchorElement) {
+                if (startHighlight && !stopHighlight) {
+                    anchorElement.classList.add("active");
+                } else {
+                    anchorElement.classList.remove("active");
+                }
+            }
+        });
+
+        // Ensure the last heading is highlighted when past it
+        if (pastLastHeading && lastHeading) {
+            const lastAnchorId = lastHeading.getAttribute("id");
+            const lastAnchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${lastAnchorId}"]`);
+            if (lastAnchorElement && !lastAnchorElement.classList.contains("active")) {
+                lastAnchorElement.classList.add("active");
             }
         }
-    });
-
-    if (pastLastHeading && lastHeading) {
-        const lastAnchorId = lastHeading.getAttribute("id");
-        const lastAnchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${lastAnchorId}"]`);
-        if (lastAnchorElement && !lastAnchorElement.classList.contains("active")) {
-            lastAnchorElement.classList.add("active");
-        }
     }
-}
-
 
     // Add content to the Table of Contents.
     // @param {number} level - Heading level.
