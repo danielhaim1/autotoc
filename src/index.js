@@ -17,14 +17,19 @@ export class Generate {
         tocIcon,
         highlightOffset,
         headingDepthLimit,
+        minElements = 3, // Minimum number of elements for ToC
+        maxElements = Infinity, // Maximum number of elements for ToC
         ignoreSelector = '' // New parameter for ignore selector
     ) {
+        this.slugCount = new Map();
         this.contentSelector = contentSelector;
         this.navigationContainer = navigationContainer;
         this.tocTitle = tocTitle;
         this.tocIcon = tocIcon;
         this.highlightOffset = highlightOffset;
         this.headingDepthLimit = headingDepthLimit;
+        this.minElements = minElements;
+        this.maxElements = maxElements;
         this.ignoreSelector = ignoreSelector; // Store the ignore selector
         this.tocMap = new Map();
         this.tocTopMap = new Map();
@@ -32,43 +37,51 @@ export class Generate {
         this.pendingExternalLinks = [];
     }
 
+
     // Validate the parameters passed to the constructor.
     // Throws an error if any parameter is invalid.
     validateParameters() {
-        if (
-            typeof this.contentSelector !== "string" ||
-            !document.querySelector(this.contentSelector)
-        )
-            throw new Error(
-                "Invalid contentSelector: Must be a valid CSS selector string for an existing element."
-            );
-        if (
-            typeof this.navigationContainer !== "string" ||
-            !document.querySelector(this.navigationContainer)
-        )
-            throw new Error(
-                "Invalid navigationContainer: Must be a valid CSS selector string for an existing element."
-            );
-        if (typeof this.tocTitle !== "string")
+        // Helper function to validate if the selector matches any element in the DOM
+        const isValidSelector = selector => {
+            try {
+                const element = document.querySelector(selector);
+                return element !== null;
+            } catch (error) {
+                return false; // Invalid CSS selector syntax
+            }
+        };
+
+        // Validate contentSelector
+        if (typeof this.contentSelector !== "string" || !isValidSelector(this.contentSelector)) {
+            throw new Error("Invalid contentSelector: Must be a valid CSS selector string for an existing element.");
+        }
+
+        // Validate navigationContainer
+        if (typeof this.navigationContainer !== "string" || !isValidSelector(this.navigationContainer)) {
+            throw new Error("Invalid navigationContainer: Must be a valid CSS selector string for an existing element.");
+        }
+
+        // Validate tocTitle
+        if (typeof this.tocTitle !== "string") {
             throw new Error("Invalid tocTitle: Must be a string.");
-        if (
-            this.tocIcon !== null &&
-            typeof this.tocIcon !== "string" &&
-            typeof this.tocIcon !== "undefined"
-        )
+        }
+
+        // Validate tocIcon
+        if (this.tocIcon !== null && typeof this.tocIcon !== "string") {
             throw new Error("Invalid tocIcon: Must be a string or null.");
-        if (typeof this.highlightOffset !== "number" || this.highlightOffset < 0)
+        }
+
+        // Validate highlightOffset
+        if (typeof this.highlightOffset !== "number" || this.highlightOffset < 0) {
             throw new Error("Invalid highlightOffset: Must be a non-negative number.");
-        if (
-            typeof this.headingDepthLimit !== "number" ||
-            this.headingDepthLimit < 1 ||
-            this.headingDepthLimit > 6 ||
-            !Number.isInteger(this.headingDepthLimit)
-        )
-            throw new Error(
-                "Invalid headingDepthLimit: Must be an integer between 1 and 6."
-            );
+        }
+
+        // Validate headingDepthLimit
+        if (typeof this.headingDepthLimit !== "number" || this.headingDepthLimit < 1 || this.headingDepthLimit > 6 || !Number.isInteger(this.headingDepthLimit)) {
+            throw new Error("Invalid headingDepthLimit: Must be an integer between 1 and 6.");
+        }
     }
+
 
     // Detach scroll event listeners.
     detachEventListeners() {
@@ -80,7 +93,10 @@ export class Generate {
     // @returns {string} - Unique ID.
     generateUniqueId(node) {
         const slugifier = new slugify();
-        return slugifier.generate(node.textContent || "");
+        const baseSlug = slugifier.generate(node.textContent || "");
+        const count = this.slugCount.get(baseSlug) || 0;
+        this.slugCount.set(baseSlug, count + 1);
+        return `${baseSlug}-${count + 1}`;
     }
 
     // Populate the TOC map with headings from the content.
@@ -88,7 +104,7 @@ export class Generate {
         let headings = document.querySelectorAll(this.createHeadingSelector());
         if (this.ignoreSelector) {
             headings = Array.from(headings).filter(heading => !heading.closest(this.ignoreSelector));
-            console.log("heading ignore:" + headings);
+            // console.log("heading ignore:" + headings);
         }
         const newTocMap = new Map();
 
@@ -96,6 +112,7 @@ export class Generate {
             if (!this.ignoreSelector || !heading.closest(this.ignoreSelector)) {
                 const headingLevel = parseInt(heading.tagName.substring(1), 10); // Ensure correct parsing
                 const headingId = heading.id || this.generateUniqueId(heading); // Generate ID if missing
+                // console.log(headingId);
                 const headingText = heading.textContent.trim();
 
                 // Only add to the new map if it doesn't exist in the old map
@@ -152,6 +169,11 @@ export class Generate {
 
     // Render the Table of Contents HTML.
     renderTocHtml() {
+        if (this.tocMap.size < this.minElements) {
+            console.log("Not enough headings to generate TOC");
+            return;
+        }
+
         let firstHeadingLevel = this.findFirstHeadingLevel();
         let currentLevel = firstHeadingLevel || 1;
 
@@ -254,7 +276,7 @@ export class Generate {
                 const text = heading.textContent.trim();
                 const anchor = document.createElement("a");
                 anchor.href = `#${uniqueId}`;
-                anchor.setAttribute("aria-label", `Anchor link to "${text}"`);
+                anchor.setAttribute("aria-label", `Anchor link to ${text}`);
                 anchor.className = "heading-link";
                 anchor.setAttribute("aria-hidden", "true");
                 anchor.setAttribute("tabindex", "-1");
@@ -356,50 +378,42 @@ export class Generate {
         }
     }
 
-    // Highlight the active section in the Table of Contents.
-    highlightActiveSection() {
-        const offset = this.highlightOffset;
-        // Select all headings within the content area that have an ID
-        const allHeadingsWithId = document.querySelectorAll(`${this.contentSelector} h1[id], ${this.contentSelector} h2[id], ${this.contentSelector} h3[id], ${this.contentSelector} h4[id], ${this.contentSelector} h5[id], ${this.contentSelector} h6[id]`);
-        // Filter out headings that do not have a corresponding anchor link within the content
-        const headings = Array.from(allHeadingsWithId).filter(heading => !!document.querySelector(`a[href="#${heading.id}"]`));
+highlightActiveSection() {
+    const offset = this.highlightOffset;
+    const allHeadingsWithId = document.querySelectorAll(`${this.contentSelector} h1[id], ${this.contentSelector} h2[id], ${this.contentSelector} h3[id], ${this.contentSelector} h4[id], ${this.contentSelector} h5[id], ${this.contentSelector} h6[id]`);
+    const headings = Array.from(allHeadingsWithId).filter(heading => !!document.querySelector(`a[href="#${heading.id}"]`));
+    const lastHeading = headings[headings.length - 1];
+    let pastLastHeading = lastHeading ? window.pageYOffset >= lastHeading.offsetTop + lastHeading.offsetHeight - offset : false;
 
-        const lastHeading = headings[headings.length - 1];
+    headings.forEach((heading, index) => {
+        const anchorId = heading.getAttribute("id");
+        const anchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${anchorId}"]`);
+        const nextHeading = headings[index + 1];
+        const startHighlight = window.pageYOffset >= heading.offsetTop - offset;
+        let stopHighlight = nextHeading ? window.pageYOffset >= nextHeading.offsetTop - offset : pastLastHeading;
 
-        let pastLastHeading = lastHeading ? window.pageYOffset >= lastHeading.offsetTop + lastHeading.offsetHeight - offset : false;
+        if (!nextHeading && pastLastHeading) {
+            stopHighlight = false;
+        }
 
-        headings.forEach((heading, index) => {
-            const anchorId = heading.getAttribute("id");
-            const anchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${anchorId}"]`);
-            const nextHeading = headings[index + 1];
-            const startHighlight = window.pageYOffset >= heading.offsetTop - offset;
-
-            let stopHighlight = nextHeading
-                ? window.pageYOffset >= nextHeading.offsetTop - offset
-                : pastLastHeading;
-
-            if (!nextHeading && pastLastHeading) {
-                stopHighlight = false; // Ensure the last heading remains highlighted.
-            }
-
-            if (anchorElement) {
-                if (startHighlight && !stopHighlight) {
-                    anchorElement.classList.add("active");
-                } else {
-                    anchorElement.classList.remove("active");
-                }
-            }
-        });
-
-        // Ensure the last heading is highlighted when past it
-        if (pastLastHeading && lastHeading) {
-            const lastAnchorId = lastHeading.getAttribute("id");
-            const lastAnchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${lastAnchorId}"]`);
-            if (lastAnchorElement && !lastAnchorElement.classList.contains("active")) {
-                lastAnchorElement.classList.add("active");
+        if (anchorElement) {
+            if (startHighlight && !stopHighlight) {
+                anchorElement.classList.add("active");
+            } else {
+                anchorElement.classList.remove("active");
             }
         }
+    });
+
+    if (pastLastHeading && lastHeading) {
+        const lastAnchorId = lastHeading.getAttribute("id");
+        const lastAnchorElement = document.querySelector(`${this.navigationContainer} .toc-list--item a[href="#${lastAnchorId}"]`);
+        if (lastAnchorElement && !lastAnchorElement.classList.contains("active")) {
+            lastAnchorElement.classList.add("active");
+        }
     }
+}
+
 
     // Add content to the Table of Contents.
     // @param {number} level - Heading level.

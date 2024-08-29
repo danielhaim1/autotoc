@@ -2,675 +2,216 @@
 <html>
 
 <head>
-    <title>Random Content Generator</title>
-    <script src="../dist/RandomUtil.amd.js"></script>
-    <link rel="stylesheet" href="demo.css">
+  <title>Random Content Generator</title>
+  <script src="../dist/autotoc.amd.js"></script>
+  <link rel="stylesheet" href="reset.css">
+  <link rel="stylesheet" href="demo.css">
 </head>
 
 <body>
-    <style>
-        body,
-        html {
-            margin: 0;
-            padding: 1rem;
-            font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        }
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 1rem;
+      font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
 
-        figure {
-            margin: 0;
-            padding: 0;
-        }
+    html {
+      background-color: var(--color-slate-900);
+      color: var(--color-slate-300);
+    }
 
-        figure figcaption {
-            margin-top: 0.5rem;
-            font-size: 14px;
-        }
+    html::after {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+      background-image: url("https://assets.codepen.io/15183/gradient.png");
+      background-repeat: no-repeat;
+      background-position: top center;
+      opacity: 0.1;
+      filter: hue-rotate(160deg);
+      transform: scaleX(-1);
+    }
 
-        figure figcaption a {
-            color: #444;
-            text-decoration: underline;
-        }
+    body {
+      font-family: "Roboto", sans-serif;
+      padding-top: calc(var(--scale-p6) * 1rem);
+    }
 
-        figure figcaption a:hover {
-            color: #000;
-        }
+    .demo-container {
+      margin-bottom: calc(var(--scale-p6) * 1rem);
+    }
 
-        [data-random="avatar"] svg {
-            display: block;
-        }
+    .grid-demo {
+      padding-top: calc(var(--scale-p2) * 1rem);
+      padding-bottom: calc(var(--scale-p2) * 1rem);
+      display: grid;
+      grid-gap: calc(var(--scale-p6) * 1rem);
+      grid-template-columns: 1fr;
+    }
 
-        .table {
-            font-size: 15px;
-        }
+    @media (min-width: 992px) {
+      .grid-demo {
+        grid-template-columns: 300px 1fr;
+      }
+    }
 
-        ul {
-            line-height: var(--rem9);
-        }
-    </style>
+    .grid-demo pre {
+      background-color: var(--color-slate-700);
+      border-radius: 6px;
+      padding: calc(var(--scale-p2) * 1rem);
+      color: var(--color-slate-200);
+    }
+
+    .grid-demo article code {
+      font-size: var(--type-p);
+    }
+
+    .grid-demo article h1,
+    h2,
+    h3,
+    h4 {
+      margin-bottom: 1em;
+    }
+
+    h4 {
+      margin-top: 1.563em;
+    }
+
+    .grid-demo article h1:not(:first-child),
+    h2:not(:first-child),
+    h3:not(:first-child) {
+      margin-top: calc(var(--scale-p4) * 1em);
+    }
+
+    .grid-demo article p a {
+      color: var(--color-primary-300);
+    }
+
+    .grid-demo article p a:hover,
+    .grid-demo article p a:focus {
+      color: var(--color-primary-100);
+    }
+
+    .grid-demo article p+p {
+      margin-top: 1em;
+    }
+
+    .grid-demo h1+p,
+    .grid-demo h2+p {
+      letter-spacing: -0.01em;
+      font-family: "Roboto" sans-serif;
+      font-weight: 400;
+      color: var(--color-slate-50);
+      border-bottom: 1px solid var(--color-slate-600);
+      margin-bottom: calc(var(--scale-p2) * 1rem);
+      padding-bottom: calc(var(--scale-p2) * 1rem);
+    }
+
+    .grid-demo h1+p code,
+    .grid-demo h2+p code,
+    .grid-demo h3+p code,
+    .grid-demo h4+p code {
+      font-family: "Roboto" sans-serif;
+      font-weight: 500;
+      text-decoration: underline;
+      text-decoration-color: var(--color-primary-500);
+      color: var(--color-slate-100);
+      text-underline-offset: 0.15em;
+    }
+
+    h1~p,
+    h2~p,
+    h3~p,
+    h4~p {
+      color: var(--color-slate-400);
+    }
+  </style>
+
+  <div class="demo-container container">
     <div class="row">
+      <div class="col">
+        <div class="grid-demo" data-scale="minor-third">
+          <nav>
+            <!-- The table of contents will be appended here -->
+          </nav>
+          <article>
+            <h1><span>AutoToc</span></h1>
+            <div class="autotoc-area">
+              <p>AutoToc is an NPM package for generating and managing table of contents with scroll highlighting for
+                web
+                content.</p>
+              <p>Learn more at <a
+                  href="https://github.com/danielhaim1/autotoc">https://github.com/danielhaim1/autotoc</a>
+              </p>
 
-        <!-- Overview -->
-        <div class="container">
-            <div class="row mb-3">
-                <div class="col">
-                    <h1 class="mb-3">RandomUtil API</h1>
-                    <p><code>RandomUtil</code> is an NPM package for easily populating DOM elements with random data,
-                        perfect for testing and prototyping web interfaces. Supports various data types including text,
-                        images, and dates</p>
-                </div>
+              <h2><span>Dependencies:</span></h2>
+              <p>@danielhaim/modulator <br />@danielhaim/slugify</p>
+
+              <h2><span>Installation</span></h2>
+              <pre><code>$ npm i @danielhaim/autotoc</code></pre>
+
+              <h2>Why AutoTOC?</h2>
+              <p>AutoTOC automates the process of generating a Table of Contents, offering scroll highlighting and easy
+                navigation through lengthy documents.</p>
+
+              <h2>Getting Started</h2>
+              <p>Quick setup instructions to get AutoTOC running on your project.</p>
+              <pre><code>$ npm install @danielhaim/autotoc</code></pre>
+
+              <h2>Features</h2>
+              <h3>Automatic TOC Generation</h3>
+              <p>Automatically generate a table of contents based on the document's headings.</p>
+              <h3>Scroll Highlighting</h3>
+              <p>Highlights sections in the TOC as you scroll through the document.</p>
+              <h3>Customization Options</h3>
+              <p>Customize the appearance and behavior of the TOC via a simple set of options.</p>
+
+              <h2>Advanced Usage</h2>
+              <p>Dive deeper with advanced configurations and methods to tailor the TOC to fit your needs.</p>
+
+              <h2>Example Section</h2>
+              <p>This is a demo section to show how AutoTOC handles different depths and styles of headings.</p>
+              <h3>Subsection Example</h3>
+              <p>Detailed view of how subsections are managed in AutoTOC.</p>
+              <h4>Deep Dive</h4>
+              <p>Understanding the intricacies of AutoTOC's handling of nested headings.</p>
+
+              <h2>Feedback</h2>
+              <p>Have suggestions or need help? Visit our <a href="https://github.com/danielhaim1/autotoc">GitHub
+                  page</a>.</p>
+
             </div>
-
-            <h2>Get Started</h2>
-            <div class="row">
-                <div class="col">
-                    <pre><code class="language-javascript">npm install @danielhaim/randomutil</code></pre>
-
-                    <h3>Usage</h3>
-                    <pre><code>const UNSPLASH_API_KEY = '[your-unsplash-api]';</code></pre>
-
-                    <h3>RandomContentManager</h3>
-                    <ul>
-                        <li><strong>Parameter:</strong> The category ID to select the corresponding data arrays.</li>
-                    </ul>
-                    <pre><code>const randomContent = new RandomContentManager(1);</code></pre>
-
-                    <h3>RandomController</h3>
-                    <pre><code>const randomController = new RandomUtilController({});</code></pre>
-
-                    <h3>RandomTag, RandomTitle, RandomExcerpt</h3>
-                    <pre><code>randomController.randomTag(randomContent.randomTags);</code>
-    <code>randomController.randomTitle(randomContent.randomTitles);</code>
-    <code>randomController.randomExcerpt(randomContent.randomExcerpts);</code></pre>
-
-                    <h3>RandomReadTime</h3>
-                    <pre><code>randomController.randomReadTime();</code></pre>
-
-                    <h3>RandomDate</h3>
-                    <pre><code>randomController.randomDate("Y/m/d");</code></pre>
-
-                    <h3>RandomImages</h3>
-                    <pre><code>const randomImageCount = document.querySelectorAll("[data-random='img']").length;</code>
-    <code>randomController.randomImages({ count: randomImageCount, query: "nature", orientation: "portrait", accessKey: UNSPLASH_API_KEY });</code></pre>
-
-                    <h3>RandomAvatar</h3>
-                    <pre><code>randomController.randomAvatar({ avatarOptions: { variant: "defaultVariant" } });</code></pre>
-                </div>
-            </div>
+          </article>
         </div>
-
-        <!-- Images -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2>randomImages Method</h2>
-                    <ul>
-                        <li>This method triggers the <code>imageManager</code> to generate and update elements with a
-                            random image.</li>
-                        <li>It targets <code>[data-random="img"]</code> attribute managed by the
-                            <code>imageManager</code> and updates their content with a random image.
-                        </li>
-                        <li>By default, the <code>randomImages()</code> method will generate a random image from the
-                            <code>imageManager</code> image list.
-                        </li>
-                        <li>However, you can pass in a custom query to the <code>randomImages()</code> method to
-                            generate a random image based on a custom query.</li>
-                        <li>See the image query section below for more information on how to format image queries.</li>
-                    </ul>
-
-                    <p><strong>Parameters:</strong></p>
-                    <ul>
-                        <li><code>count</code> (optional, default = 12): The number of images to fetch.</li>
-                        <li><code>query</code> (optional, default = "nature"): The search term used to query images from
-                            Unsplash.</li>
-                        <li><code>orientation</code> (optional, default = "landscape"): The orientation of the images
-                            ("landscape", "portrait", or "squarish").</li>
-                        <li><code>accessKey</code> (required): The Unsplash API access key.</li>
-                    </ul>
-
-                    <div class="row">
-                        <figure class="col">
-                            <img style="max-width:300px;" data-random="img" />
-                            <figcaption>Query: Default</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <img style="max-width:300px;" data-random="img" data-random-img="person, face" />
-                            <figcaption>Query: "Person"</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <img style="max-width:300px;" data-random="img" data-random-img="school bus" />
-                            <figcaption>Query: "School Bus"</figcaption>
-                        </figure>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Avatars -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2>randomAvatar Method</h2>
-                    <ul>
-                        <li>This method triggers the <code>avatarManager</code> to generate and update elements with a
-                            random avatar.</li>
-                        <li>It targets <code>[data-random="avatar"]</code> attribute managed by the
-                            <code>avatarManager</code> and updates their content with a random avatar.
-                        </li>
-                        <li>By default, the <code>randomAvatar()</code> method will generate a random avatar from the
-                            <code>avatarManager</code> avatar list.
-                        </li>
-                        <li>However, you can pass in a custom avatar variant to the <code>randomAvatar()</code> method
-                            to generate a random avatar based on a custom variant.</li>
-                        <li>See the avatar variant section below for more information on how to format avatar variants.
-                        </li>
-                    </ul>
-                    <pre>
-    <code>const rc = new RandomController();</code>
-    <code>rc.randomAvatar({</code>
-    <code>  avatarOptions: {</code>
-    <code>    variant: "smile",</code>
-    <code>    colors: ["#FF5733", "#33FF57", "#5733FF"],</code>    
-    <code>    square: true,</code>
-    <code>    size: 128,</code>
-    <code>  },</code>
-    <code>});</code>
-                        </pre>
-                    <div class="row">
-                        <figure class="col">
-                            <div data-random="avatar"></div>
-                            <figcaption>Variant: Default</figcaption>
-                        </figure>
-                    </div>
-                    <div class="row mt-3">
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="abstract"></div>
-                            <figcaption>Variant: Abstract</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="abstract"></div>
-                            <figcaption>Variant: Abstract</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="abstract"></div>
-                            <figcaption>Variant: Abstract</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="abstract"></div>
-                            <figcaption>Variant: Abstract</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="abstract"></div>
-                            <figcaption>Variant: Abstract</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="abstract"></div>
-                            <figcaption>Variant: Abstract</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="abstract"></div>
-                            <figcaption>Variant: Abstract</figcaption>
-                        </figure>
-                    </div>
-                    <div class="row mt-3">
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="pixel"></div>
-                            <figcaption>Variant: Pixel</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="pixel"></div>
-                            <figcaption>Variant: Pixel</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="pixel"></div>
-                            <figcaption>Variant: Pixel</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="pixel"></div>
-                            <figcaption>Variant: Pixel</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="pixel"></div>
-                            <figcaption>Variant: Pixel</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="pixel"></div>
-                            <figcaption>Variant: Pixel</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="pixel"></div>
-                            <figcaption>Variant: Pixel</figcaption>
-                        </figure>
-                        
-                    </div>
-                    <div class="row mt-3">
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="smile"></div>
-                            <figcaption>Variant: Smile</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="smile"></div>
-                            <figcaption>Variant: Smile</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="smile"></div>
-                            <figcaption>Variant: Smile</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="smile"></div>
-                            <figcaption>Variant: Smile</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="smile"></div>
-                            <figcaption>Variant: Smile</figcaption>
-                        </figure>
-                        <figure class="col">
-                            <div data-random="avatar" data-random-avatar="smile"></div>
-                            <figcaption>Variant: Smile</figcaption>
-                        </figure>
-                    
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Date  -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2>randomDate Method</h2>
-                    <ul>
-                        <li>This method triggers the <code>dateManager</code> to generate and update elements with a
-                            random date.</li>
-                        <li>It targets <code>[data-random="date"]</code> attribute managed by the
-                            <code>dateManager</code> and updates their content with a formatted date.
-                        </li>
-                        <li>By default, the <code>randomDate()</code> method will generate a random date in the format
-                            of <code>M j, Y</code> (Eg., Dec 21, 2019).</li>
-                        <li>However, you can pass in a custom format to the <code>randomDate()</code> method to generate
-                            a random date in a custom format.</li>
-                        <li>See the date formatting section below for more information on how to format dates.</li>
-                    </ul>
-                    <div class="row">
-                        <div class="col">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th><strong>Category</strong></th>
-                                        <th><strong>Format</strong></th>
-                                        <th><strong>Description</strong></th>
-                                        <th><strong>Example</strong></th>
-                                        <th><strong>HTML</strong></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Day of Month</strong></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td data-random-date="d"></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>d</strong></td>
-                                        <td>Numeric, with leading zeros</td>
-                                        <td>01–31</td>
-                                        <td data-random-date="d">01–31</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>j</strong></td>
-                                        <td>Numeric, without leading zeros</td>
-                                        <td>1–31</td>
-                                        <td data-random-date="j">1–31</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>S</strong></td>
-                                        <td>The English suffix for the day of the month</td>
-                                        <td>st, nd or th in the 1st, 2nd or 15th</td>
-                                        <td data-random-date="S">st, nd or th in the 1st, 2nd or 15th</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Weekday</strong></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td data-random-date="l"></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>l</strong></td>
-                                        <td>Full name (lowercase ‘L’)</td>
-                                        <td>Sunday – Saturday</td>
-                                        <td data-random-date="l">Sunday – Saturday</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>D</strong></td>
-                                        <td>Three letter name</td>
-                                        <td>Mon – Sun</td>
-                                        <td data-random-date="D">Mon – Sun</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Month</strong></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td data-random-date="m"></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>m</strong></td>
-                                        <td>Numeric, with leading zeros</td>
-                                        <td>01–12</td>
-                                        <td data-random-date="m">01–12</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>n</strong></td>
-                                        <td>Numeric, without leading zeros</td>
-                                        <td>1–12</td>
-                                        <td data-random-date="n">1–12</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>F</strong></td>
-                                        <td>Textual full</td>
-                                        <td>January – December</td>
-                                        <td data-random-date="F">January – December</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>M</strong></td>
-                                        <td>Textual three letters</td>
-                                        <td>Jan – Dec</td>
-                                        <td data-random-date="M">Jan – Dec</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Year</strong></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td data-random-date="Y"></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>Y</strong></td>
-                                        <td>Numeric, 4 digits</td>
-                                        <td>Eg., 1999, 2003</td>
-                                        <td data-random-date="Y">Eg., 1999, 2003</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>y</strong></td>
-                                        <td>Numeric, 2 digits</td>
-                                        <td>Eg., 99, 03</td>
-                                        <td data-random-date="y">Eg., 99, 03</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Time</strong></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td data-random-date="a"></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>a</strong></td>
-                                        <td>Lowercase</td>
-                                        <td>am, pm</td>
-                                        <td data-random-date="a">am, pm</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>A</strong></td>
-                                        <td>Uppercase</td>
-                                        <td>AM, PM</td>
-                                        <td data-random-date="A">AM, PM</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>g</strong></td>
-                                        <td>Hour, 12-hour, without leading zeros</td>
-                                        <td>1–12</td>
-                                        <td data-random-date="g">1–12</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>h</strong></td>
-                                        <td>Hour, 12-hour, with leading zeros</td>
-                                        <td>01–12</td>
-                                        <td data-random-date="h">01–12</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>G</strong></td>
-                                        <td>Hour, 24-hour, without leading zeros</td>
-                                        <td>0-23</td>
-                                        <td data-random-date="G">0-23</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>H</strong></td>
-                                        <td>Hour, 24-hour, with leading zeros</td>
-                                        <td>00-23</td>
-                                        <td data-random-date="H">00-23</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>i</strong></td>
-                                        <td>Minutes, with leading zeros</td>
-                                        <td>00-59</td>
-                                        <td data-random-date="i">00-59</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>s</strong></td>
-                                        <td>Seconds, with leading zeros</td>
-                                        <td>00-59</td>
-                                        <td data-random-date="s">00-59</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>T</strong></td>
-                                        <td>Timezone abbreviation</td>
-                                        <td>Eg., EST, MDT …</td>
-                                        <td data-random-date="T">Eg., EST, MDT …</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Full Date/Time</strong></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td data-random-date="c"></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>c</strong></td>
-                                        <td>ISO 8601</td>
-                                        <td>2004-02-12T15:19:21+00:00</td>
-                                        <td data-random-date="c">2004-02-12T15:19:21+00:00</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>r</strong></td>
-                                        <td>RFC 2822</td>
-                                        <td>Thu, 21 Dec</td>
-                                        <td data-random-date="r">Thu, 21 Dec</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>U</strong></td>
-                                        <td>Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)</td>
-                                        <td>1577836800</td>
-                                        <td data-random-date="U">1577836800</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>M jS, Y</strong></td>
-                                        <td>Custom</td>
-                                        <td>Dec 21st, 2019</td>
-                                        <td data-random-date="M jS, Y">Dec 21st, 2019</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><strong>l, F jS, Y</strong></td>
-                                        <td>Custom</td>
-                                        <td>Saturday, December 21st, 2019</td>
-                                        <td data-random-date="l, F jS, Y">Saturday, December 21st, 2019</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tag -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2>randomTag Method</h2>
-                    <ul>
-                        <li>This method triggers the <code>tagManager</code> to generate and update elements with a
-                            random tag.</li>
-                        <li>It targets <code>[data-random="tag"]</code> attribute managed by the <code>tagManager</code>
-                            and updates their content with a random tag.</li>
-                        <li>By default, the <code>randomTag()</code> method will generate a random tag from the
-                            <code>tagManager</code> tag list.
-                        </li>
-                    </ul>
-                    <div class="row">
-                        <div class="col">
-                            <h3>Example:</h3>
-                            <ul>
-                                <li><span data-random="tag"></span></li>
-                                <li><span data-random="tag"></span></li>
-                                <li><span data-random="tag"></span></li>
-                                <li><span data-random="tag"></span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Title -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2>randomTitle Method</h2>
-                    <ul>
-                        <li>This method triggers the <code>titleManager</code> to generate and update elements with a
-                            random title.</li>
-                        <li>It targets <code>[data-random="title"]</code> attribute managed by the
-                            <code>titleManager</code> and updates their content with a random title.
-                        </li>
-                        <li>By default, the <code>randomTitle()</code> method will generate a random title from the
-                            <code>titleManager</code> title list.
-                        </li>
-                    </ul>
-                    <div class="row">
-                        <div class="col">
-                            <h3>Example:</h3>
-                            <ul>
-                                <li><span data-random="title"></span></li>
-                                <li><span data-random="title"></span></li>
-                                <li><span data-random="title"></span></li>
-                                <li><span data-random="title"></span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Excerpts -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2>randomExcerpt Method</h2>
-                    <ul>
-                        <li>This method triggers the <code>excerptManager</code> to generate and update elements with a
-                            random excerpt.</li>
-                        <li>It targets <code>[data-random="excerpt"]</code> attribute managed by the
-                            <code>excerptManager</code> and updates their content with a random excerpt.
-                        </li>
-                        <li>By default, the <code>randomExcerpt()</code> method will generate a random excerpt from the
-                            <code>excerptManager</code> excerpt list.
-                        </li>
-                    </ul>
-                    <div class="row">
-                        <div class="col">
-                            <h3>Example:</h3>
-                            <ul>
-                                <li><span data-random="excerpt"></span></li>
-                                <li><span data-random="excerpt"></span></li>
-                                <li><span data-random="excerpt"></span></li>
-                                <li><span data-random="excerpt"></span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Read Time -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h2>randomReadTime Method</h2>
-                    <ul>
-                        <li>This method triggers the <code>readTimeManager</code> to generate and update elements with a
-                            random read time.</li>
-                        <li>It targets <code>[data-random="read-time"]</code> attribute managed by the
-                            <code>readTimeManager</code> and updates their content with a random read time.
-                        </li>
-                        <li>By default, the <code>randomReadTime()</code> method will generate a random read time from
-                            the <code>readTimeManager</code> read time list.</li>
-                    </ul>
-                    <div class="row">
-                        <div class="col">
-                            <h3>Example:</h3>
-                            <ul>
-                                <li><span data-random="read-time"></span></li>
-                                <li><span data-random="read-time"></span></li>
-                                <li><span data-random="read-time"></span></li>
-                                <li><span data-random="read-time"></span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-    <script>
-        const UNSPLASH_API_KEY = 'ea98eS9i44JjTJiC6XmvRRHDBITzIM9aB8cxXntcPvY';
-        const randomContent = new RandomContentManager(1);
-        const randomController = new RandomUtilController({});
-
-        randomController.randomTag(randomContent.randomTags);
-        randomController.randomTitle(randomContent.randomTitles);
-        randomController.randomExcerpt(randomContent.randomExcerpts);
-
-        randomController.randomReadTime();
-        randomController.randomDate("Y/m/d");
-
-        const randomImageCount = document.querySelectorAll("[data-random='img']").length;
-        randomController.randomImages({ count: randomImageCount, query: "nature", orientation: "portrait", accessKey: UNSPLASH_API_KEY });
-        randomController.randomAvatar({ avatarOptions: { variant: "defaultVariant" } });
-    </script>
-
-    <script src="demo.js"></script>
+  </div>
+  <script src="demo.js"></script>
+  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"
+    focusable="false" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+    <defs>
+      <symbol id="icon-toc" viewBox="0 0 24 24">
+        <path
+          d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 9 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 8 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 6 5 C 6.552 5 7 5.448 7 6 C 7 6.552 6.552 7 6 7 C 5.448 7 5 6.552 5 6 C 5 5.448 5.448 5 6 5 z M 9 5 C 9.552 5 10 5.448 10 6 C 10 6.552 9.552 7 9 7 C 8.448 7 8 6.552 8 6 C 8 5.448 8.448 5 9 5 z M 12 5 L 19 5 L 19 7 L 12 7 L 12 5 z M 5 9 L 19 9 L 19 19 L 5 19 L 5 9 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z M 14 11 L 14 17 L 17 17 L 17 11 L 14 11 z M 7 15 L 7 17 L 12 17 L 12 15 L 7 15 z"
+          fill="currentColor" />
+      </symbol>
+    </defs>
+  </svg>
 </body>
-
 </html>
