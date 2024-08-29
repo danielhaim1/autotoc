@@ -14,7 +14,8 @@
     html {
       margin: 0;
       padding: 1rem;
-      font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
     }
 
     *,
@@ -108,12 +109,12 @@
       color: var(--color-primary-100);
     }
 
-    .grid-demo article p+p {
+    .grid-demo article p + p {
       margin-top: 1em;
     }
 
-    .grid-demo h1+p,
-    .grid-demo h2+p {
+    .grid-demo h1 + p,
+    .grid-demo h2 + p {
       letter-spacing: -0.01em;
       font-family: "Roboto" sans-serif;
       font-weight: 400;
@@ -123,10 +124,10 @@
       padding-bottom: calc(var(--scale-p2) * 1rem);
     }
 
-    .grid-demo h1+p code,
-    .grid-demo h2+p code,
-    .grid-demo h3+p code,
-    .grid-demo h4+p code {
+    .grid-demo h1 + p code,
+    .grid-demo h2 + p code,
+    .grid-demo h3 + p code,
+    .grid-demo h4 + p code {
       font-family: "Roboto" sans-serif;
       font-weight: 500;
       text-decoration: underline;
@@ -135,14 +136,13 @@
       text-underline-offset: 0.15em;
     }
 
-    h1~p,
-    h2~p,
-    h3~p,
-    h4~p {
+    h1 ~ p,
+    h2 ~ p,
+    h3 ~ p,
+    h4 ~ p {
       color: var(--color-slate-400);
     }
   </style>
-
   <div class="demo-container container">
     <div class="row">
       <div class="col">
