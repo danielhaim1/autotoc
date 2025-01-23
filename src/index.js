@@ -10,14 +10,14 @@ import { slugify } from '@danielhaim/slugify/src/index.js';
 // @param {number} headingDepthLimit - Limit for heading depth to include in TOC.
 
 export class Generate {
-    constructor (
+    constructor(
         contentSelector,
         navigationContainer,
         tocTitle,
         tocIcon,
         highlightOffset,
         headingDepthLimit,
-        ignoreSelector = '' // New parameter for ignore selector
+        ignoreSelector = ''
     ) {
         this.slugCount = new Map();
         this.contentSelector = contentSelector;
@@ -26,7 +26,7 @@ export class Generate {
         this.tocIcon = tocIcon;
         this.highlightOffset = highlightOffset;
         this.headingDepthLimit = headingDepthLimit;
-        this.ignoreSelector = ignoreSelector; // Store the ignore selector
+        this.ignoreSelector = ignoreSelector;
         this.tocMap = new Map();
         this.tocTopMap = new Map();
         this.tocBottomMap = new Map();
@@ -34,53 +34,39 @@ export class Generate {
     }
 
     // Validate the parameters passed to the constructor.
-    // Throws an error if any parameter is invalid.
     validateParameters() {
-        // Helper function to validate if the selector matches any element in the DOM
         const isValidSelector = selector => {
             try {
-                const element = document.querySelector(selector);
-                return element !== null;
+                return !!document.querySelector(selector);
             } catch (error) {
-                return false; // Invalid CSS selector syntax
+                return false;
             }
         };
 
-        // Validate contentSelector
         if (typeof this.contentSelector !== "string" || !isValidSelector(this.contentSelector)) {
             throw new Error("Invalid contentSelector: Must be a valid CSS selector string for an existing element.");
         }
 
-        // Validate navigationContainer
         if (typeof this.navigationContainer !== "string" || !isValidSelector(this.navigationContainer)) {
             throw new Error("Invalid navigationContainer: Must be a valid CSS selector string for an existing element.");
         }
 
-        // Validate tocTitle
         if (typeof this.tocTitle !== "string") {
             throw new Error("Invalid tocTitle: Must be a string.");
         }
 
-        // Validate tocIcon
         if (this.tocIcon !== null && typeof this.tocIcon !== "string") {
-
             throw new Error("Invalid tocIcon: Must be a string or null.");
         }
 
-        // Validate highlightOffset
         if (typeof this.highlightOffset !== "number" || this.highlightOffset < 0) {
             throw new Error("Invalid highlightOffset: Must be a non-negative number.");
         }
 
-        // Validate headingDepthLimit
         if (typeof this.headingDepthLimit !== "number" || this.headingDepthLimit < 1 || this.headingDepthLimit > 6 || !Number.isInteger(this.headingDepthLimit)) {
             throw new Error("Invalid headingDepthLimit: Must be an integer between 1 and 6.");
         }
-
-
-
     }
-
 
     // Detach scroll event listeners.
     detachEventListeners() {
@@ -93,9 +79,8 @@ export class Generate {
     generateUniqueId(node) {
         const slugifier = new slugify();
         const baseSlug = slugifier.generate(node.textContent || "");
-        const count = this.slugCount.get(baseSlug) || 0;
-        this.slugCount.set(baseSlug, count + 1);
-        return `${baseSlug}-${count + 1}`;
+        this.slugCount[baseSlug] = (this.slugCount[baseSlug] || 0) + 1;
+        return `${baseSlug}-${this.slugCount[baseSlug]}`;
     }
 
     // Populate the TOC map with headings from the content.
@@ -104,27 +89,22 @@ export class Generate {
         if (this.ignoreSelector) {
             headings = Array.from(headings).filter(heading => !heading.closest(this.ignoreSelector));
         }
+
         const newTocMap = new Map();
-
         headings.forEach((heading) => {
-            if (!this.ignoreSelector || !heading.closest(this.ignoreSelector)) {
-                const headingLevel = parseInt(heading.tagName.substring(1), 10); // Ensure correct parsing
-                const headingId = heading.id || this.generateUniqueId(heading); // Generate ID if missing
-                const headingText = heading.textContent.trim();
+            const headingLevel = parseInt(heading.tagName.substring(1), 10);
+            const headingId = heading.id || this.generateUniqueId(heading);
+            const headingText = heading.textContent.trim();
 
-                // Only add to the new map if it doesn't exist in the old map
-                if (!this.tocMap.has(headingId)) {
-                    newTocMap.set(headingId, { level: headingLevel, text: headingText });
-                }
+            if (!this.tocMap.has(headingId)) {
+                newTocMap.set(headingId, { level: headingLevel, text: headingText });
             }
         });
 
-        // Update the existing TOC map with the new entries
         this.tocMap = new Map([...this.tocMap, ...newTocMap]);
-
-        // Call renderTocHtml to update the TOC with the new entries in a batch operation
         this.renderTocHtml();
     }
+
 
     // Create a TOC list from the provided TOC map.
     // @param {Map} tocMap - TOC map to create the list from.
@@ -343,7 +323,6 @@ export class Generate {
             (_, i) => `${this.contentSelector} h${i + 1}`
         );
 
-        // If an ignore selector is provided, add :not() to each selector
         if (this.ignoreSelector) {
             selectors = selectors.map(selector => `${selector}:not(${this.ignoreSelector})`);
         }
