@@ -51,7 +51,7 @@ module.exports = [{
     },
     plugins: [
         new webpack.DefinePlugin({
-            'process.env.UNSPLASH_API_KEY': JSON.stringify(process.env.UNSPLASH_API_KEY)
+            'process.env.UNSPLASH_API_KEY': 'undefined'
         }),
         new webpack.ProvidePlugin({
             process: 'process/browser'
